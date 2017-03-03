@@ -3,28 +3,25 @@
 namespace AppBundle\Representation;
 
 use Pagerfanta\Pagerfanta;
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Type;
 
-/**
- * @ExclusionPolicy("all")
- */
 class Articles
 {
     /**
-     * @Expose
+     * @Type("array<AppBundle\Entity\Article>")
      */
     public $data;
+
     public $meta;
 
     public function __construct(Pagerfanta $data)
     {
         $this->data = $data->getCurrentPageResults();
 
-        //$this->addMeta('limit', $data->getMaxPerPage());
-        //$this->addMeta('current_items', count($data->getCurrentPageResults()));
-        //$this->addMeta('total_items', $data->getNbResults());
-        //$this->addMeta('offset', $data->getCurrentPageOffsetStart());
+        $this->addMeta('limit', $data->getMaxPerPage());
+        $this->addMeta('current_items', count($data->getCurrentPageResults()));
+        $this->addMeta('total_items', $data->getNbResults());
+        $this->addMeta('offset', $data->getCurrentPageOffsetStart());
     }
 
     public function addMeta($name, $value)

@@ -3,13 +3,16 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Article;
+use AppBundle\Exception\ResourceValidationException;
 use AppBundle\Representation\Articles;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Request\ParamFetcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use FOS\RestBundle\Controller\FOSRestController;
+use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\HttpFoundation\Response;
 
-class ArticleController extends Controller
+class ArticleController extends FOSRestController
 {
     /**
      * @Rest\Get("/articles", name="app_article_list")
@@ -48,8 +51,6 @@ class ArticleController extends Controller
             $paramFetcher->get('offset')
         );
 
-        //dump(new Articles($pager)); die;
-
         return new Articles($pager);
     }
 
@@ -71,8 +72,17 @@ class ArticleController extends Controller
      * @Rest\View(StatusCode = 201)
      * @ParamConverter("article", converter="fos_rest.request_body")
      */
-    public function createAction(Article $article)
+    public function createAction(Article $article, ConstraintViolationList $violations)
     {
+        if (count($violations)) {
+            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            foreach ($violations as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+
+            throw new ResourceValidationException($message);
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $em->persist($article);
