@@ -32,7 +32,18 @@ class ExceptionListener implements EventSubscriberInterface
             $result = $normalizer->normalize($event->getException());
         }
 
+        if (null == $result) {
+
+            $result['code'] = Response::HTTP_BAD_REQUEST;
+
+            $result['body'] = [
+                'code' => Response::HTTP_BAD_REQUEST,
+                'message' => $event->getException()->getMessage()
+            ];
+        }
+
         $body = $this->serializer->serialize($result['body'], 'json');
+
 
         $event->setResponse(new Response($body, $result['code']));
     }

@@ -11,6 +11,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\HttpFoundation\Response;
+use Hateoas\Representation\PaginatedRepresentation;
 
 class ArticleController extends FOSRestController
 {
@@ -89,5 +90,48 @@ class ArticleController extends FOSRestController
         $em->flush();
 
         return $article;
+    }
+
+    /**
+     * @Rest\View(StatusCode = 200)
+     * @Rest\Put(
+     *     path = "/articles/{id}",
+     *     name = "app_article_update",
+     *     requirements = {"id"="\d+"}
+     * )
+     * @ParamConverter("newArticle", converter="fos_rest.request_body")
+     */
+    public function updateAction(Article $article, Article $newArticle, ConstraintViolationList $violations)
+    {
+        if (count($violations)) {
+            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            foreach ($violations as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+
+            throw new ResourceValidationException($message);
+        }
+
+        $article->setTitle($newArticle->getTitle());
+        $article->setContent($newArticle->getContent());
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return $article;
+    }
+
+    /**
+     * @Rest\View(StatusCode = 204)
+     * @Rest\Delete(
+     *     path = "/articles/{id}",
+     *     name = "app_article_delete",
+     *     requirements = {"id"="\d+"}
+     * )
+     */
+    public function deleteAction(Article $article)
+    {
+        $this->getDoctrine()->getManager()->remove($article);
+
+        return;
     }
 }

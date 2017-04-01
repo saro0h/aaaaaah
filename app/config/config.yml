@@ -70,13 +70,25 @@ swiftmailer:
     spool:     { type: memory }
 
 fos_rest:
+    versioning:
+        enabled: true
+        resolvers:
+            #query: true # Query parameter: /users?version=v1
+            #custom_header: true # X-Accept-Version header
+            media_type: # Accept header
+                enabled: true
+                regex: '/(v|version)=(?P<version>[0-9\.]+)/'
+    view:
+        mime_types:
+            json: ['application/json', 'application/json;version=1.0', 'application/json;version=2.0']
+        view_response_listener: true
+        formats: { json: true, xml: false, rss: false }
+    serializer:
+        serialize_null: true
     body_converter:
         enabled: true
         validate: true
         validation_errors_argument: violations
-    view:
-        view_response_listener: true
-        formats: { json: true, xml: false, rss: false }
     format_listener:
         rules:
             - { path: '^/', priorities: ['json'], fallback_format: 'json' }
@@ -87,3 +99,11 @@ fos_rest:
            { AppBundle\Exception\ResourceValidationException: 400, \Exception: 500 }
         messages:
            { AppBundle\Exception\ResourceValidationException: true }
+
+
+csa_guzzle:
+    clients:
+        weather:
+            config:
+                base_uri: http://api.openweathermap.org
+                #timeout: 2.0
