@@ -3,8 +3,15 @@
 namespace AppBundle\Representation;
 
 use Pagerfanta\Pagerfanta;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation\Type;
 
+/**
+ * @Hateoas\Relation(
+ *     "authenticated_user",
+ *     embedded = @Hateoas\Embedded("expr(service('app.github_user').getAuthenticated())")
+ * )
+ */
 class Articles
 {
     /**

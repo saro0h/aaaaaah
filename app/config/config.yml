@@ -107,3 +107,6 @@ csa_guzzle:
             config:
                 base_uri: http://api.openweathermap.org
                 #timeout: 2.0
+        github_api:
+            config:
+                base_url: https://api.github.com

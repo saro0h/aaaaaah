@@ -19,3 +19,17 @@ services:
             - '@csa_guzzle.client.weather'
             - '@jms_serializer'
             - %weather_api_key%
+
+    github_authenticator:
+        class: AppBundle\Security\GithubAuthenticator
+        arguments: ["%github_client_id%", "%github_client_secret%", "@router"]
+
+    github_user_provider:
+        class: AppBundle\Security\GithubUserProvider
+        arguments: ["@csa_guzzle.client.github_api", "@jms_serializer"]
+
+    app.github_user:
+        class: AppBundle\Security\GithubUser
+        arguments:
+            - '@security.token_storage'
+
