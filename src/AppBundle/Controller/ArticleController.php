@@ -75,6 +75,8 @@ class ArticleController extends FOSRestController
      */
     public function createAction(Article $article, ConstraintViolationList $violations)
     {
+        // Si l'utilisateur connecté est saro0h => Créer un voter qui fait le job
+
         if (count($violations)) {
             $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
             foreach ($violations as $violation) {
